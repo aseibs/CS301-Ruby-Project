@@ -8,7 +8,9 @@ class Card
 
         #handle ace value
         if suite == "ace"
-            @ace_val = 1
+            @ace_val = 11
+        else
+            @ace_val = -1
         end
     end
 
@@ -44,10 +46,55 @@ class Deck
     def createDeck()
         #Clear deck if already in use
         @cards.clear
+
+        #Run card generation four times
+        for j in 1..4 do
+            for i in 1..13 do
+
+                #Create special cards
+                if i == 1
+                    card = Card.new("ace", i)
+                    @cards.push(card)
+                    next
+                end
+                if i == 11
+                    card = Card.new("jack", 10)
+                    @cards.push(card)
+                    next
+                end
+                if i == 12
+                    card = Card.new("queen", 10)
+                    @cards.push(card)
+                    next
+                end
+                if i == 13
+                    card = Card.new("king", 10)
+                    @cards.push(card)
+                    next
+                end
+
+                #Create numeric cards
+                card = Card.new(i.to_s, i)
+                @cards.push(card)
+            end
+        end
+        @cards = @cards.shuffle
     end
 
     #Gets the next card from the deck, removes it, and return the Card Object
     def getCard()
+        if @cards.empty?
+            return nil
+        else 
+            return @cards.pop
+       end
+    end
+
+    #print the current deck of cards
+    def printCurrentDeckState()
+        for i in @cards do
+            puts "Card Suite: #{i.getSuite()} Card Value: #{i.getValue()}"
+        end
     end
 end
 
@@ -111,6 +158,13 @@ class CardHand
     #The get cards method returns an array containing all the player's cards 
     def getCards()
         return @cardsInHand
+    end
+
+    #print the player's hand
+    def printHand()
+        for i in @cardsInHand do
+            puts "Card: #{i.getSuite()} Value: #{i.getValue()}"
+        end
     end
 end
 
