@@ -128,6 +128,7 @@ end
 class Dealer
 
     def initialize(deckNumber, players)
+        @win = false
         @players = players
         @playingDeck = Array.new(deckNumber)
         @hand = CardHand.new()
@@ -135,27 +136,39 @@ class Dealer
     
     # End Game by hitting until the score is above 17 or breaks 
     def endGame()
-        
+        stop = false
+        while stop == false do 
+            score = self.getScore()
+            if score > 21 do 
+                stop = true
+                @win = false
+            else if score < 17
+                self.hit()
+            else
+                stop = true
+            end 
+        end
+        # at the end of this loop compare all players and report the winner(s) and loser(s)
     end
     
     # initial deal two cards to each player and to the dealer 
     def deal()
-        
-    end
-    
-    # gives one random card to a player
-    def playerHit()
-        
+        for x  in @players do 
+            x.hit
+            x.hit
+        end 
+        self.hit()
+        self.hit()
     end
     
     # Adds a card to dealer's own hand
     def hit()
-        
+        @hand.addCard()
     end
     
     # Gets the current score of the dealers hand 
     def getScore()
-        
+        carHand.getValue()
     end
     
 end
@@ -190,6 +203,15 @@ class CardHand
         for i in @cardsInHand do
             puts "Card: #{i.getSuite()} Value: #{i.getValue()}"
         end
+    end
+    
+    #Gets the value of the players hand 
+    def handValue()
+        total = 0
+        for i in @cardsInHand do
+            total += i.getValue()
+        end
+        return total
     end
 end
 
