@@ -225,13 +225,13 @@ class GameController
 		@players = Array.new(numberOfPlayers)
 		@currentDeck = Array.new(numberOfCardDecks)
 		
-		i = 0
+		i = 1
 		until i > @numberOfPlayers do
 			@players.push(Player.new(100)) #todo: let player input bet value
 			i += 1
 		end
 		
-		k = 0
+		k = 1
 		until k > @numberOfCardDecks do
 			deckToAdd = Deck.new()
 			deckToAdd.createDeck()
