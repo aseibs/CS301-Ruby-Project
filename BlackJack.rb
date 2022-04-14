@@ -218,6 +218,7 @@ end
 
 class GameController
 
+    #Initialize a new game given the number of players and the number of decks to use
     def initialize(numberOfPlayers, numberOfCardDecks)
         @numberOfPlayers = numberOfPlayers
         @numberOfCardDecks = numberOfCardDecks
@@ -225,12 +226,14 @@ class GameController
 		@players = Array.new(numberOfPlayers)
 		@currentDeck = Array.new(numberOfCardDecks)
 		
+        #Initialize players
 		i = 1
 		until i > @numberOfPlayers do
 			@players.push(Player.new(100)) #todo: let player input bet value
 			i += 1
 		end
 		
+        #Initialize playing deck
 		k = 1
 		until k > @numberOfCardDecks do
 			deckToAdd = Deck.new()
@@ -238,13 +241,14 @@ class GameController
 			@currentDeck.push(deckToAdd)
 			k += 1
 		end
-		
-		#puts "test"
-		
-		#until all players either win or lose,
-			#collect bet
-			#deal
-		
+				
+		#until all players either lose or stand,
+            #for each player,
+                #ask them to hit or stand
+        #compare player scores against dealer and 21, pay out/collect bets
+		#ask if want to play again, if so, restart loop
+        #if playing deck runs out, recreate it
+        
     end
 
     def run()
