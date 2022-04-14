@@ -139,10 +139,10 @@ class Dealer
         stop = false
         while stop == false do 
             score = self.getScore()
-            if score > 21 do 
+            if score > 21 then 
                 stop = true
                 @win = false
-            else if score < 17
+            else if score < 17 then
                 self.hit()
             else
                 stop = true
