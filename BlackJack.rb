@@ -127,12 +127,37 @@ end
 
 class Dealer
 
-    def initialize(deckNumber)
+    def initialize(deckNumber, players)
+        @players = players
         @playingDeck = Array.new(deckNumber)
+        @hand = CardHand.new()
     end
-
+    
+    # End Game by hitting until the score is above 17 or breaks 
+    def endGame()
+        
+    end
+    
+    # initial deal two cards to each player and to the dealer 
     def deal()
+        
     end
+    
+    # gives one random card to a player
+    def playerHit()
+        
+    end
+    
+    # Adds a card to dealer's own hand
+    def hit()
+        
+    end
+    
+    # Gets the current score of the dealers hand 
+    def getScore()
+        
+    end
+    
 end
 
 #The cardHand class provides the abstraction for the cards that a player currently holds in the game
