@@ -199,6 +199,30 @@ class GameController
     def initialize(numberOfPlayers, numberOfCardDecks)
         @numberOfPlayers = numberOfPlayers
         @numberOfCardDecks = numberOfCardDecks
+		
+		@players = Array.new(numberOfPlayers)
+		@currentDeck = Array.new(numberOfCardDecks)
+		
+		i = 0
+		until i > @numberOfPlayers do
+			@players.push(Player.new(100)) #todo: let player input bet value
+			i += 1
+		end
+		
+		k = 0
+		until k > @numberOfCardDecks do
+			deckToAdd = Deck.new()
+			deckToAdd.createDeck()
+			@currentDeck.push(deckToAdd)
+			k += 1
+		end
+		
+		#puts "test"
+		
+		#until all players either win or lose,
+			#collect bet
+			#deal
+		
     end
 
     def run()
@@ -207,3 +231,5 @@ class GameController
     def win_loss()
     end
 end
+
+controller = GameController.new(2,3)
