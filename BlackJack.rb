@@ -127,12 +127,50 @@ end
 
 class Dealer
 
-    def initialize(deckNumber)
+    def initialize(deckNumber, players)
+        @win = false
+        @players = players
         @playingDeck = Array.new(deckNumber)
+        @hand = CardHand.new()
     end
-
+    
+    # End Game by hitting until the score is above 17 or breaks 
+    def endGame()
+        stop = false
+        while stop == false do 
+            score = self.getScore()
+            if score > 21 then 
+                stop = true
+                @win = false
+            else if score < 17 then
+                self.hit()
+            else
+                stop = true
+            end 
+        end
+        # at the end of this loop compare all players and report the winner(s) and loser(s)
+    end
+    
+    # initial deal two cards to each player and to the dealer 
     def deal()
+        for x  in @players do 
+            x.hit
+            x.hit
+        end 
+        self.hit()
+        self.hit()
     end
+    
+    # Adds a card to dealer's own hand
+    def hit()
+        @hand.addCard()
+    end
+    
+    # Gets the current score of the dealers hand 
+    def getScore()
+        carHand.getValue()
+    end
+    
 end
 
 #The cardHand class provides the abstraction for the cards that a player currently holds in the game
@@ -166,14 +204,51 @@ class CardHand
             puts "Card: #{i.getSuite()} Value: #{i.getValue()}"
         end
     end
+    
+    #Gets the value of the players hand 
+    def handValue()
+        total = 0
+        for i in @cardsInHand do
+            total += i.getValue()
+        end
+        return total
+    end
 end
 
 
 class GameController
 
+    #Initialize a new game given the number of players and the number of decks to use
     def initialize(numberOfPlayers, numberOfCardDecks)
         @numberOfPlayers = numberOfPlayers
         @numberOfCardDecks = numberOfCardDecks
+		
+		@players = Array.new(numberOfPlayers)
+		@currentDeck = Array.new(numberOfCardDecks)
+		
+        #Initialize players
+		i = 1
+		until i > @numberOfPlayers do
+			@players.push(Player.new(100)) #todo: let player input bet value
+			i += 1
+		end
+		
+        #Initialize playing deck
+		k = 1
+		until k > @numberOfCardDecks do
+			deckToAdd = Deck.new()
+			deckToAdd.createDeck()
+			@currentDeck.push(deckToAdd)
+			k += 1
+		end
+				
+		#until all players either lose or stand,
+            #for each player,
+                #ask them to hit or stand
+        #compare player scores against dealer and 21, pay out/collect bets
+		#ask if want to play again, if so, restart loop
+        #if playing deck runs out, recreate it
+        
     end
 
     def run()
@@ -183,4 +258,8 @@ class GameController
     end
 end
 
+<<<<<<< HEAD
 controller = GameController.new(2,3)
+=======
+controller = GameController.new(2,3)
+>>>>>>> a907c5632b8e7c7b490fde3060b0dadb4f1c0ba4
