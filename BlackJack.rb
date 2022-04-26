@@ -182,3 +182,5 @@ class GameController
     def win_loss()
     end
 end
+
+controller = GameController.new(2,3)
