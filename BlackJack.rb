@@ -236,13 +236,13 @@ class Dealer
         end
     end
 
-    def initDeal(anti)
+    def initDeal()
         count = 0
         for x in @players
             x.getHand().addCard(@playingDeck.getCard())
             x.getHand().addCard(@playingDeck.getCard())
             puts "Player #{count} What would you like your bet to be?"
-            anit = gets
+            anti = gets.chomp.to_i
             x.bet(anti)
             count  = count + 1
         end
@@ -336,7 +336,7 @@ class GameController
 
     def run()
         stop = false
-        @dealer.initDeal(10)
+        @dealer.initDeal()
         count = 0 
         for x in @players               # Allow Players to take their turns
             self.spacer()
