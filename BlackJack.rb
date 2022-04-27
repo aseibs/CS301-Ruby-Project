@@ -299,8 +299,26 @@ class CardHand
     end
 end
 
+module Formatting
+    def spacer()
+        for i in 1..20
+            puts ""
+        end
+    end
+
+    def clearTerminal
+        puts "amit"
+        if RUBY_PLATFORM =~ /win32|win64|\.NET|windows|cygwin|mingw32/i
+           system('cls')
+         else
+           system('clear')
+        end
+     end
+end
 
 class GameController
+
+    include Formatting
 
     #Initialize a new game given the number of players and the number of decks to use
     def initialize(numberOfCardDecks)
@@ -326,12 +344,6 @@ class GameController
 		end
 
         @dealer = Dealer.new(@gameDeck, @players)
-    end
-
-    def spacer()
-        for i in 1..20
-            puts ""
-        end
     end
 
     def run()
