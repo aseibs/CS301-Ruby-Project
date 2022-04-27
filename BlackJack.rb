@@ -108,16 +108,11 @@ end
 class Player
 
     #Player class constructor. Input initial bet value
-    def initialize(betValue)
-        @betValue = betValue
+    def initialize()
+        @betValue = 0
         @cardHand = CardHand.new()
         @out = false
-    end
-
-    #A function to for the player to hold. Returns the player's card hand to see if they won or lost
-    def hold()
-        @out = true
-        return @cardHand
+        @total = 0
     end
 
     #A function for the player to hit. Returns the player's card hand to see if the player won, lost or is still in the game
@@ -126,17 +121,46 @@ class Player
         return @cardHand
     end
 
+    def hold()
+        @out = true
+        return @cardHand
+    end
+
     # A function to enable a player to add a bet. Returns the player's bet value
     def bet(betValue)
-        @betValue += betValue
-        return @betValue
+        @betValue = betValue
     end
 
+    def win()
+        @total = @total + @betValue
+    end
+
+    def lose()
+        @total = @total - @betValue
+    end
+
+    def getTotal()
+        return @total
+    end
+
+    # sets up an enviorment for the player to handle their turn
+    def printState()
+        puts "Current Cards:"
+        @cardHand.printHand()
+        puts "Current Score: #{self.getScore()}"
+    end
+
+    # Gets the current score of the player's hand 
+    def getScore()
+        @cardHand.handValue()
+    end
+
+    # returns a CardHand object which represents the players current cards 
     def getHand()
         return @cardHand
-        puts "TESTTTTTT"
     end
 
+    # returns a value that represents the players status in the game 
     def getOut()
         return @out
     end
@@ -157,39 +181,68 @@ class Dealer
     
     # End Game by hitting until the score is above 17 or breaks 
     def endGame()
+        puts "---------- Dealer's Turn ----------"
         stop = false
         while stop == false do 
             score = self.getScore()
             if score > 21 then 
                 stop = true
                 @win = false
+                puts "The Dealer Broke All Players Still In The Game Have Won!"
             elsif score < 17 then
-                self.hit()
+                tempCard = self.hit()
+                puts "Dealer pulled a #{tempCard.getSuite()}. Their score is now #{self.getScore()}"
             else
                 stop = true
+                puts "The dealer holds"
             end 
+            sleep(1)
         end
-        # at the end of this loop compare all players and report the winner(s) and loser(s)
+        puts ""
+        puts "---------- Results ----------"
+        self.getWinners()       # at the end of this loop compare all players and report the winner(s) and loser(s)
     end
     
     # Adds a card to dealer's own hand
     def hit()
-        @hand.addCard()
+        tempCard = self.newCard()
+        @hand.addCard(self.newCard())
+        return self.newCard()
     end
     
     # Gets the current score of the dealers hand 
     def getScore()
-        carHand.getValue()
+        @hand.handValue()
+    end
+
+    def getWinners()
+        count = 0
+        for x in @players
+            if self.getScore() > 21 && x.getScore() <= 21
+                x.win()
+                puts "Player #{count} has won! With a score of #{x.getScore()}. New Total = #{x.getTotal()}"
+            else
+                if x.getScore() > self.getScore() && x.getScore <= 21
+                    x.win()
+                    puts "Player #{count} has won! With a score of #{x.getScore()}. New Total = #{x.getTotal()}"
+                elsif x.getScore == self.getScore()
+                    puts "Player #{count} has tied the dealer, with a score of #{x.getScore()}. Total = #{x.getTotal()}"
+                else
+                    x.lose()
+                    puts "Player #{count} has lost, with a score of #{x.getScore()}. New Total = #{x.getTotal()}"
+                end
+            end
+            count = count + 1
+        end
     end
 
     def initDeal(anti)
         count = 0
-        puts @players
         for x in @players
             x.getHand().addCard(@playingDeck.getCard())
             x.getHand().addCard(@playingDeck.getCard())
             puts "Player #{count} What would you like your bet to be?"
-            anit = gets.chomp.to_i
+            anit = gets
             x.bet(anti)
             count  = count + 1
         end
@@ -231,18 +284,18 @@ class CardHand
     
     #Gets the value of the players hand 
     def handValue()
-        total = 0
+        t = 0
         ace = false
         for i in @cardsInHand do
             if i.getAce() == 11
                 ace = true
             end
-            total += i.getValue()
-            if total > 21 && ace == true
-                total - 10
+            t += i.getValue()
+            if t > 21 && ace == true
+                t - 10
             end
         end
-        return total
+        return t
     end
 end
 
@@ -261,13 +314,9 @@ class GameController
         @gameDeck = Deck.new()
 
         #Initialize players
-		i = 1
-		until i > @numberOfPlayers do
-			@players.push(Player.new(0)) #todo: let player input bet value
-			i += 1
+		for i in 1..@numberOfPlayers do
+			@players.push(Player.new()) #todo: let player input bet value
 		end
-
-        puts @players
 		
         #Initialize playing deck
 		k = 1
@@ -276,24 +325,35 @@ class GameController
 			k += 1
 		end
 
-
         @dealer = Dealer.new(@gameDeck, @players)
+    end
+
+    def spacer()
+        for i in 1..20
+            puts ""
+        end
     end
 
     def run()
         stop = false
         @dealer.initDeal(10)
-        count = 0
-        for x in @players
+        count = 0 
+        for x in @players               # Allow Players to take their turns
+            self.spacer()
+            puts "---------- Player #{count} ----------"
             while x.getOut == false
+                x.printState()
                 puts "Puts #{count} Chose to hit (0) or hold (1)"
                 input = gets.chomp.to_i
                 if input == 0
                     x.hit(@dealer.newCard())
                     if x.getHand().handValue() == 21 
-                        x.hold()
+                        x.getHand()
                     elsif x.getHand().handValue() > 21 
+                        x.printState()
                         x.hold()
+                        puts "You exceeded 21. Enter any number and pass to next player" 
+                        l = gets
                     end
                 elsif input == 1
                     x.hold()
@@ -302,8 +362,11 @@ class GameController
             count = count + 1
         end
 
-        puts "Thanks for playing!!!"
-        puts "Press R to play again! or E to exit"
+        self.spacer()
+        @dealer.endGame()               # Dealers turn to get their cards and end the game
+
+        puts ""
+        puts "Thanks for playing!!! Press R to play again and retain player's totals or Q to quit"
         # Restart the game
     end
 
