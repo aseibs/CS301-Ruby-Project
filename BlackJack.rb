@@ -18,6 +18,10 @@ class Card
         return @ace_val
     end
 
+    def setAce(num)
+        @ace_val = num
+    end 
+
     #Gets the suite of the card
     def getSuite()
         return @suite
@@ -26,6 +30,10 @@ class Card
     #Gets the value of the card
     def getValue()
         return @value
+    end
+
+    def setValue(n)
+        @value = n
     end
 
     #Gets the additional ace value
@@ -55,7 +63,7 @@ class Deck
 
                 #Create special cards
                 if i == 1
-                    card = Card.new("ace", i)
+                    card = Card.new("ace", 11)
                     @cards.push(card)
                     next
                 end
@@ -164,6 +172,13 @@ class Player
     def getOut()
         return @out
     end
+
+    def reset()
+        @betValue = 0
+        @cardHand = CardHand.new()
+        @out = false
+    end
+
 end
 
 class Dealer
@@ -206,8 +221,8 @@ class Dealer
     # Adds a card to dealer's own hand
     def hit()
         tempCard = self.newCard()
-        @hand.addCard(self.newCard())
-        return self.newCard()
+        @hand.addCard(tempCard)
+        return tempCard
     end
     
     # Gets the current score of the dealers hand 
@@ -237,7 +252,7 @@ class Dealer
     end
 
     def initDeal()
-        count = 0
+        count = 1
         for x in @players
             x.getHand().addCard(@playingDeck.getCard())
             x.getHand().addCard(@playingDeck.getCard())
@@ -287,12 +302,17 @@ class CardHand
         t = 0
         ace = false
         for i in @cardsInHand do
-            if i.getAce() == 11
-                ace = true
-            end
-            t += i.getValue()
-            if t > 21 && ace == true
-                t - 10
+            t = t + i.getValue() 
+            if t > 21 
+                for i in @cardsInHand do
+                    if i.getAce() == 11
+                        i.setValue(1)
+                        i.setAce(1)
+                        if t <= 21 
+                            break
+                        end
+                    end
+                end
             end
         end
         return t
@@ -321,70 +341,85 @@ class GameController
     include Formatting
 
     #Initialize a new game given the number of players and the number of decks to use
-    def initialize(numberOfCardDecks)
+    def initialize(numberOfCardDecks, players)
         puts "WELCOME TO BLACKJACK"
         puts "How many players will be participating?"
         @numberOfPlayers = gets.chomp.to_i
         @numberOfCardDecks = numberOfCardDecks
-		
-		# @players = Array.new(@numberOfPlayers)
+    
+        # @players = Array.new(@numberOfPlayers)
         @players = [ ]
-        @gameDeck = Deck.new()
 
         #Initialize players
-		for i in 1..@numberOfPlayers do
-			@players.push(Player.new()) #todo: let player input bet value
-		end
-		
+        for i in 1..@numberOfPlayers do
+            @players.push(Player.new()) #todo: let player input bet value
+        end
+        
+        @gameDeck = Deck.new()
+    
         #Initialize playing deck
-		k = 1
-		until k > @numberOfCardDecks do
-			@gameDeck.createDeck()
-			k += 1
-		end
+        k = 1
+        until k > @numberOfCardDecks do
+            @gameDeck.createDeck()
+            k += 1
+        end
 
         @dealer = Dealer.new(@gameDeck, @players)
     end
 
-    def run()
-        stop = false
-        @dealer.initDeal()
-        count = 0 
-        for x in @players               # Allow Players to take their turns
-            self.spacer()
-            puts "---------- Player #{count} ----------"
-            while x.getOut == false
-                x.printState()
-                puts "Puts #{count} Chose to hit (0) or hold (1)"
-                input = gets.chomp.to_i
-                if input == 0
-                    x.hit(@dealer.newCard())
-                    if x.getHand().handValue() == 21 
-                        x.getHand()
-                    elsif x.getHand().handValue() > 21 
-                        x.printState()
-                        x.hold()
-                        puts "You exceeded 21. Enter any number and pass to next player" 
-                        l = gets
-                    end
-                elsif input == 1
-                    x.hold()
-                end
-            end
-            count = count + 1
+    def resetPlayers()
+        for x in @players
+            x.reset()
         end
-
-        self.spacer()
-        @dealer.endGame()               # Dealers turn to get their cards and end the game
-
-        puts ""
-        puts "Thanks for playing!!! Press R to play again and retain player's totals or Q to quit"
-        # Restart the game
     end
 
-    def win_loss()
+    def run()
+        stop = false
+        finished = false
+        while finished == false
+            @dealer.initDeal()
+            count = 1
+            for x in @players               # Allow Players to take their turns
+                self.spacer()
+                puts "---------- Player #{count} ----------"
+                while x.getOut == false
+                    x.printState()
+                    puts "Player #{count} Chose to hit (0) or hold (1)"
+                    input = gets.chomp.to_i
+                    if input == 0
+                        x.hit(@dealer.newCard())
+                        if x.getHand().handValue() == 21 
+                            x.getHand()
+                        elsif x.getHand().handValue() > 21 
+                            x.printState()
+                            x.hold()
+                            puts "You exceeded 21. Enter any number and pass to next player" 
+                            l = gets
+                        end
+                    elsif input == 1
+                        x.hold()
+                    end
+                end
+                count = count + 1
+            end
+
+            self.spacer()
+            @dealer.endGame()               # Dealers turn to get their cards and end the game
+
+            puts ""
+            puts "Thanks for playing!!! Press 0 to play again and retain player's totals or 1 to quit"
+            input = gets.chomp.to_i         # Restart the game
+            if input == 1
+                finished = true
+            elsif input != 1 && input != 0
+                puts "Invalid input"
+            else
+                self.resetPlayers()          # reset players
+                @dealer = Dealer.new(@gameDeck, @players)
+            end 
+        end
     end
 end
 
-controller = GameController.new(3)
+controller = GameController.new(3, nil)
 controller.run()
